@@ -4,6 +4,7 @@ import com.example.resourcecenter.entity.Resource;
 import com.example.resourcecenter.entity.User;
 import com.example.resourcecenter.service.ResourceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -52,5 +53,15 @@ public class ResourceController {
     @PatchMapping("/{id}/rating")
     public ResponseEntity<Resource> updateRating(@PathVariable Long id, @RequestParam int rating) {
         return ResponseEntity.ok(service.updateRating(id, rating));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<Resource>> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy
+    ) {
+        return ResponseEntity.ok(service.search(keyword, page, size, sortBy));
     }
 }
