@@ -1,18 +1,20 @@
 package com.example.resourcecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Resource {
@@ -26,13 +28,19 @@ public class Resource {
     @Column(length = 1000)
     private String description;
 
-    private int rating;
-
     private boolean active;
 
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private double averageRating = 0.0;
+
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @ToString.Exclude
+    private List<Comment> comments = new ArrayList<>();
+
     @ManyToOne
+    @JsonIncludeProperties({"firstName", "lastName"})
     private User author;
 
     @Override

@@ -1,0 +1,58 @@
+type Query {
+    getResources: [Resource!]!
+    resource(id: ID!): Resource
+    content(page: Int!, search: String!, sort: String!, activeOnly: Boolean!, size: Int!): [Resource!]!
+}
+
+type Mutation {
+    createResource(input: ResourceInput!): Resource
+    deleteResource(id: ID!): Boolean
+    toggleResource(id: ID!): Resource
+    updateRating(id: ID!, rating: Int!): Resource
+    addComment(resourceId: ID!, content: String!): Resource
+    login(email: String!, password: String!): LoginResponse
+}
+
+type Resource {
+    id: ID!
+    title: String!
+    description: String!
+    active: Boolean!
+    averageRating: Float!
+    author: UserShort
+    comments: [Comment]
+}
+
+type UserShort {
+    firstName: String
+    lastName: String
+    email: String
+}
+
+type Comment {
+    id: ID!
+    content: String!
+    author: UserShort
+    createdAt: String
+}
+
+type StatisticsDto {
+    averageCommentsPerUser: Float!
+    ratingDistribution: [RatingCountEntry]
+    averageRating: Float!
+}
+
+type RatingCountEntry {
+    value: Int!
+    count: Int!
+}
+
+type LoginResponse {
+    token: String!
+    user: UserShort!
+}
+
+input ResourceInput {
+    title: String!
+    description: String!
+}

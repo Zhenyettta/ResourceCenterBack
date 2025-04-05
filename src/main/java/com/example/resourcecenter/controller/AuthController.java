@@ -58,7 +58,8 @@ public class AuthController {
                             "id", user.getId(),
                             "email", user.getEmail(),
                             "firstName", user.getFirstName(),
-                            "lastName", user.getLastName()
+                            "lastName", user.getLastName(),
+                            "role", user.getRole()
                     )
             ));
         } catch (RuntimeException e) {

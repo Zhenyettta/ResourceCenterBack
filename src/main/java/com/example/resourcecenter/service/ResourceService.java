@@ -1,8 +1,16 @@
 package com.example.resourcecenter.service;
 
-import com.example.resourcecenter.entity.Resource;
+import com.example.resourcecenter.entity.*;
+import com.example.resourcecenter.repository.CommentRepository;
+import com.example.resourcecenter.repository.RatingRepository;
 import com.example.resourcecenter.repository.ResourceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,11 +21,13 @@ import java.util.List;
 public class ResourceService {
 
     private final ResourceRepository repository;
+    private final CommentRepository commentRepository;
+    private final RatingRepository ratingRepository;
 
     public Resource create(Resource resource) {
         resource.setCreatedAt(LocalDateTime.now());
         resource.setActive(true);
-        resource.setRating(0);
+        resource.setAverageRating(0);
         return repository.save(resource);
     }
 
@@ -51,19 +61,75 @@ public class ResourceService {
                 .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
     }
 
-
     public Resource getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
     }
 
 
-    public Resource updateRating(Long id, int rating) {
-        return repository.findById(id)
-                .map(resource -> {
-                    resource.setRating(rating);
-                    return repository.save(resource);
-                })
-                .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
+    public Resource updateRating(Long resourceId, int rating, User user) {
+        Resource resource = repository.findById(resourceId)
+                .orElseThrow(() -> new RuntimeException("Resource not found with id: " + resourceId));
+
+        Rating existing = ratingRepository.findByUserAndResource(user, resource).orElse(null);
+
+        if (existing == null) {
+            Rating newRating = Rating.builder()
+                    .user(user)
+                    .resource(resource)
+                    .value(rating)
+                    .build();
+            ratingRepository.save(newRating);
+        } else {
+            existing.setValue(rating);
+            ratingRepository.save(existing);
+        }
+
+
+        double average = ratingRepository.findAverageRatingForResource(resourceId);
+        resource.setAverageRating(average);
+
+        return repository.save(resource);
+    }
+
+
+    public void deleteComment(Long resourceId, Long commentId, User user) {
+        Resource resource = repository.findById(resourceId)
+                .orElseThrow(() -> new RuntimeException("Resource not found"));
+
+        Comment comment = resource.getComments().stream()
+                .filter(c -> c.getId().equals(commentId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        if (user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Only admin can delete comments");
+        }
+
+        resource.getComments().remove(comment);
+        commentRepository.delete(comment);
+    }
+
+
+    public Page<Resource> search(String keyword, int page, int size, String sortBy, String direction, boolean activeOnly) {
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repository.searchResources(keyword, activeOnly, pageable);
+    }
+
+
+    public Resource addComment(Long resourceId, String content, User user) {
+        Resource resource = getById(resourceId);
+
+        Comment comment = Comment.builder()
+                .content(content)
+                .author(user)
+                .resource(resource)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        commentRepository.save(comment);
+        resource.getComments().add(comment);
+        return resource;
     }
 }
