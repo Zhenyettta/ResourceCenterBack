@@ -35,6 +35,10 @@ public class Resource {
     @Column(nullable = false)
     private double averageRating = 0.0;
 
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Rating> ratings = new ArrayList<>();
+
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();

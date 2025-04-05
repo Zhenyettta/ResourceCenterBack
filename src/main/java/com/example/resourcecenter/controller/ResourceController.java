@@ -34,8 +34,8 @@ public class ResourceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResourceDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(ResourceMapper.toDto(service.getById(id)));
+    public ResponseEntity<ResourceDto> getById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ResourceMapper.toDto(service.getById(id, user)));
     }
 
     @PutMapping("/{id}")

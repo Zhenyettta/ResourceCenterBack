@@ -1,5 +1,6 @@
 package com.example.resourcecenter.service;
 
+import com.example.resourcecenter.entity.Role;
 import com.example.resourcecenter.entity.User;
 import com.example.resourcecenter.entity.VerificationToken;
 import com.example.resourcecenter.repository.UserRepository;
@@ -33,6 +34,7 @@ public class AuthService {
                 .firstName(firstName)
                 .lastName(lastName)
                 .enabled(false)
+                .role(Role.USER)
                 .build();
 
         User savedUser = userRepository.save(user);

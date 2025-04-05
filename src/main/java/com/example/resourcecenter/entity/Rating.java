@@ -1,5 +1,6 @@
 package com.example.resourcecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,6 +22,7 @@ public class Rating {
     private User user;
 
     @ManyToOne(optional = false)
+    @JsonIgnore
     private Resource resource;
 
     @Min(1)

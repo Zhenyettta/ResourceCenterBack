@@ -1,5 +1,6 @@
 package com.example.resourcecenter.dto;
 
+import com.example.resourcecenter.entity.Rating;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class ResourceDto {
     private double averageRating;
     private List<CommentDto> comments;
     private AuthorDto author;
+    private List<Rating> rating;
 
     @Data
     @AllArgsConstructor
@@ -28,6 +30,7 @@ public class ResourceDto {
         private String content;
         private LocalDateTime createdAt;
         private AuthorDto author;
+
     }
 
     @Data

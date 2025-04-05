@@ -25,6 +25,7 @@ public class ResourceMapper {
                         .firstName(resource.getAuthor().getFirstName())
                         .lastName(resource.getAuthor().getLastName())
                         .build())
+                .rating(resource.getRatings())
                 .comments(toCommentDtos(resource.getComments()))
                 .build();
     }

@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -61,9 +62,33 @@ public class ResourceService {
                 .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
     }
 
-    public Resource getById(Long id) {
+    public  Resource getById(Long id) {
+
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
+    }
+
+    public  Resource getById(Long id, User currentUser) {
+        Resource resource = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
+
+
+        if (resource.getRatings() != null) {
+            resource.getRatings().sort((r1, r2) -> Integer.compare(r2.getValue(), r1.getValue()));
+        }
+
+        if (currentUser != null) {
+            List<Rating> userRating = resource.getRatings().stream()
+                    .filter(rating -> rating.getUser().getId().equals(currentUser.getId()))
+                    .toList();
+
+            resource.setRatings(userRating);
+        } else {
+            // If no user is provided, clear all ratings from the response
+            resource.setRatings(new ArrayList<>());
+        }
+
+        return resource;
     }
 
 
