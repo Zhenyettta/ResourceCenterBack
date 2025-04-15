@@ -121,7 +121,6 @@ public class ResourceService {
     public void deleteComment(Long resourceId, Long commentId, User user) {
         Resource resource = repository.findById(resourceId)
                 .orElseThrow(() -> new RuntimeException("Resource not found"));
-
         Comment comment = resource.getComments().stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
